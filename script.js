@@ -1,99 +1,69 @@
-'use strict';
+"use strict";
 
-const mainEl = document.getElementById("main")
-const button = document.getElementById("button")
+// proof of life, first step in workflow when creating script and wiring it to the html, console returns hi and this can then be removed.
+// console.log("hi")
 
-//  helper function example (for strings)
+// variables listed together up top
 
-// with a fixed domain usecase so only one domain, otherwise would use a global db of acceptable domains
-function buildEmail(firstName, lastName) {
-    // console.log(firstName[0])
-    // or use firstName.charAt(0)
+const button1 = document.getElementById("button1");
+const dropdown = document.getElementById("flavors");
+const resultsDiv = document.getElementById("results")
 
-    const firstNameLower = firstName.charAt(0).toLowerCase()
-    const lastNameLower = lastName.toLowerCase()
-    const domain = "@gmail.com"
-    const username = firstNameLower + lastNameLower;
-    const email = username + domain
-    return email
-    
-}
+// fetch helper function
 
-// example of generic fetch function
-
-async function fetchData(url, options) {
-
-    try {
-        const res = await fetch(url, options)
-        if (!res.ok) {
-            throw new Error("Error in fetch")
-        }
-        const data = await res.json()
-        return data
-        
-    } catch (error) {
-        console.log(error)
+async function fetchJellies(url) {
+  try {
+    //   fetch data from API, url defined in main function
+      const res = await fetch(url);
+    //   checks response.ok, stops function if status is not ok
+    if (!res.ok) {
+      return;
     }
+    //   parse fetched data as JSON
+      const data = await res.json();
+    //   returns data outside function as a result of calling this function
+      return data
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-// specific fetch function
+// render function
 
-async function getPokemon(id) {
-    try {
-        const res = await fetch("https://pokeapi.co/api/v2/pokemon/"+id);
-        if (!res.ok) {
-            throw new Error("Something broke with fetching pokemon")
-            
-        }
+function render(jellyData) {
+  resultsDiv.innerHTML = "";
+  const resultsP = document.createElement("p");
+  resultsP.textContent = jellyData;
 
-        const data = await res.json()
-
-        return data
-
-    } catch (error) {
-      console.log(error)  
-    }
+  resultsDiv.appendChild(resultsP);
 }
 
-// fetch function 
 
-function renderDog(src) {
-    // get the name of dog breed from url by slicing off the first 30 characters, splitting by / and index 0 or splitting by "/" and index [4]
-    const breed = src.split("/")[4]
-
-    const h2 = document.createElement("h2")
-    h2.textContent = breed
-    mainEl.appendChild(h2)
-
-    const img = document.createElement("img")
-    img.src = src
-    img.alt = breed
-
-    mainEl.appendChild(img)
-
-}
-
-// main function to run them all
+// main function, used to call all other functions -- used to avoid "spaghetti code"
 
 async function main() {
     try {
+    //   when Get button is clicked
+      button1.addEventListener("click", async () => {
+        // define fetch parameters
+      const jellyURL =
+        "https://jellybellywikiapi.onrender.com/api/beans?pageIndex=1&pageSize=114";
+      const jellyOptions = { method: "GET" };
+      // call fetch function with defined parameters
+      const jelly = await fetchJellies(jellyURL, jellyOptions);
+      //   create a list of flavor names from json
+        const flavorNames = await jelly.items.map((item) => item.flavorName);
+        console.log(flavorNames);
 
-        //run helper function to build email
-        const email = buildEmail("Ashley","Flynn")
-        console.log(email)
+        render(flavorNames)
 
-        //run helper function to get pokemon info from API
-        const charmander = await getPokemon(5)
-        console.log(charmander)
-
-        //run helper function to get dog img data from dog API
-
-        const dog = await fetchData("https://dog.ceo/api/breeds/image/random", { method: "GET" });
-        renderDog(dog)
-
-    } catch (error) {
-        console.error(error)
-    }
+      });
+        
+        // button2.addEventListener("click",()=> {})
+        
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-main()
+main();
