@@ -6,8 +6,10 @@
 // variables listed together up top
 
 const button1 = document.getElementById("button1");
+const button2 = document.getElementById("button2");
 const dropdown = document.getElementById("flavors");
-const resultsDiv = document.getElementById("results")
+const resultsDiv = document.getElementById("results");
+const resultsDiv2 = document.getElementById("results2")
 
 // fetch helper function
 
@@ -28,7 +30,7 @@ async function fetchJellies(url) {
   }
 }
 
-// render function
+// render functions
 
 function render(jellyData) {
   resultsDiv.innerHTML = "";
@@ -36,6 +38,14 @@ function render(jellyData) {
   resultsP.textContent = jellyData;
 
   resultsDiv.appendChild(resultsP);
+}
+
+function render2(jsonData) {
+  resultsDiv2.innerHTML = "";
+  const resultsP = document.createElement("p");
+  resultsP.textContent = jsonData;
+
+  resultsDiv2.appendChild(resultsP);
 }
 
 
@@ -54,12 +64,32 @@ async function main() {
       //   create a list of flavor names from json
         const flavorNames = await jelly.items.map((item) => item.flavorName);
         console.log(flavorNames);
-
         render(flavorNames)
 
       });
-        
-        // button2.addEventListener("click",()=> {})
+                
+        button2.addEventListener("click", async () => {
+           try {
+               const options = {
+                 body: JSON.stringify({
+                   title: "Test",
+                   body: "Test test",
+                   userId: 1,
+                 }),
+                 //    bearer tokens etc
+                 headers: {"Content-type": "application/json; charset=UTF-8"},
+                 method: "POST",
+               };
+             const res = await fetch("https://jsonplaceholder.typicode.com/posts", options);
+             if (!res.ok) {
+               return
+             }
+             const data = await res.json();
+             render2("ID: "+data.id+" Title: "+data.title+ " Body: " + data.body)
+           } catch (error) {
+             console.log(error)
+         }
+    })
         
   } catch (error) {
     console.log(error);
